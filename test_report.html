@@ -63,7 +63,7 @@ footer .k{margin-right:3vw}
 </main>
 <footer>
   <span class="k">Donating now<b id="cb">0</b></span>
-  <span class="k">Donated today<b id="cd">0</b></span>
+  <span class="k">Completed today<b id="cd">0</b></span>
   <span class="sp"></span>
   <span id="status">Starting…</span>
 </footer>
@@ -89,13 +89,13 @@ var CONFIG = {
 };
 /* ================================================================== */
 
-var donors = [], curId = null, lastOk = 0, shownKey = "", inflight = false;
+var donors = [], curId = null, lastOk = 0, shownKey = "", inflight = false, summaryCounts = null;
 var STATUS = {
   registered: { code: "r", label: "REGISTERED", color: "#9e9e9e" }, r: { code: "r", label: "REGISTERED", color: "#9e9e9e" },
   tested: { code: "t", label: "TESTED", color: "#ff9800" }, t: { code: "t", label: "TESTED", color: "#ff9800" },
   fit: { code: "f", label: "FIT", color: "#2196f3" }, f: { code: "f", label: "FIT", color: "#2196f3" },
-  bled: { code: "b", label: "BLEEDING", color: "#4caf50" }, bleeding: { code: "b", label: "BLEEDING", color: "#4caf50" }, b: { code: "b", label: "BLEEDING", color: "#4caf50" },
-  donated: { code: "d", label: "DONATED", color: "#0f8a4b" }, d: { code: "d", label: "DONATED", color: "#0f8a4b" },
+  bled: { code: "b", label: "DONATING", color: "#4caf50" }, bleeding: { code: "b", label: "DONATING", color: "#4caf50" }, b: { code: "b", label: "DONATING", color: "#4caf50" },
+  donated: { code: "d", label: "COMPLETED", color: "#0f8a4b" }, d: { code: "d", label: "COMPLETED", color: "#0f8a4b" },
   deferred: { code: "n", label: "DEFERRED", color: "#9e9e9e" }, n: { code: "n", label: "DEFERRED", color: "#9e9e9e" }
 };
 var ML = {
@@ -144,11 +144,29 @@ function normalize(raw) {
   out.sort(function (a, b) { return b.ms - a.ms; });
   return out;
 }
+function readSummaryCounts(raw) {
+  var data = raw && raw.data, candidates = [raw && raw.counts, data && data.counts, data && data.summary,
+    data && data.statusCounts, data && data.statuscounts, data && data, raw], i, j;
+  var names = { all: "all", registered: "registered", tested: "tested", fit: "fit", bleeding: "bleeding", donated: "donated", deferred: "deferred" };
+  for (i = 0; i < candidates.length; i++) {
+    var source = candidates[i];
+    if (!source || typeof source !== "object" || source instanceof Array) continue;
+    var counts = {}, found = false, keys = Object.keys(source);
+    for (j = 0; j < keys.length; j++) {
+      var key = String(keys[j]).toLowerCase().replace(/[^a-z]/g, ""), target = names[key];
+      if (target && source[keys[j]] !== "" && isFinite(Number(source[keys[j]]))) {
+        counts[target] = Number(source[keys[j]]); found = true;
+      }
+    }
+    if (found) return counts;
+  }
+  return null;
+}
 
 /* ---- data loading: XHR with timeout, no overlapping calls ---- */
 function setStatus(txt, bad) { var e = $("status"); e.textContent = txt; e.className = bad ? "bad" : ""; }
-function applyData(list) {
-  donors = list; lastOk = new Date().getTime();
+function applyData(list, counts) {
+  donors = list; summaryCounts = counts; lastOk = new Date().getTime();
   var i, found = false;
   for (i = 0; i < donors.length; i++) if (donors[i].id === curId) { found = true; break; }
   if (!found) curId = donors.length ? donors[0].id : null;   // keep place by ID, not by position
@@ -172,9 +190,9 @@ function load() {
     try {
       var response = JSON.parse(x.responseText);
       if (response.success === false || (response.httpstatus && response.httpstatus !== 200)) throw new Error(response.message || "API request failed");
-      var l = normalize(response);
+      var l = normalize(response), counts = readSummaryCounts(response);
       if (!l) throw new Error("Unexpected donor data from server");
-      applyData(l);
+      applyData(l, counts);
     } catch (e) { setStatus(e.message || "Unexpected data from server", true); }
   };
   x.onerror = x.ontimeout = function () { finish(); setStatus("Connection lost", true); };
@@ -187,8 +205,9 @@ var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent,#0f8a4b)" 
 function isStale() { return CONFIG.apiUrl && (new Date().getTime() - lastOk) > CONFIG.staleSeconds * 1000; }
 function render() {
   var f = $("feature"), i, cb = 0, cd = 0, stale = isStale();
-  if (stale) donors = [];
+  if (stale) { donors = []; summaryCounts = null; }
   for (i = 0; i < donors.length; i++) { if (donors[i].t === "b") cb++; if (donors[i].t === "d") cd++; }
+  if (summaryCounts) { if (summaryCounts.bleeding != null) cb = summaryCounts.bleeding; if (summaryCounts.donated != null) cd = summaryCounts.donated; }
   $("cb").textContent = cb; $("cd").textContent = cd;
   if (!donors.length) {
     if (shownKey !== "empty") {

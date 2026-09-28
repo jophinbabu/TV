@@ -38,8 +38,44 @@ module.exports = async function handler(req, res) {
       donationtype: donor.donationtype,
     }));
 
+    const countKeys = {
+      all: "all",
+      registered: "registered",
+      tested: "tested",
+      fit: "fit",
+      bleeding: "bleeding",
+      donated: "donated",
+      deferred: "deferred",
+    };
+    const countSources = [
+      payload.counts,
+      payload.data && payload.data.counts,
+      payload.data && payload.data.summary,
+      payload.data && payload.data.statusCounts,
+      payload.data && payload.data.statuscounts,
+      payload.data,
+      payload,
+    ];
+    let safeCounts = null;
+    for (const source of countSources) {
+      if (!source || typeof source !== "object" || Array.isArray(source)) continue;
+      const counts = {};
+      for (const [key, value] of Object.entries(source)) {
+        const target = countKeys[key.toLowerCase().replace(/[^a-z]/g, "")];
+        if (target && value !== "" && Number.isFinite(Number(value))) counts[target] = Number(value);
+      }
+      if (Object.keys(counts).length) {
+        safeCounts = counts;
+        break;
+      }
+    }
+
     res.setHeader("Cache-Control", "no-store");
-    return res.status(200).json({ success: true, httpstatus: 200, data: { datalist: safeDatalist } });
+    return res.status(200).json({
+      success: true,
+      httpstatus: 200,
+      data: { datalist: safeDatalist, counts: safeCounts },
+    });
   } catch (error) {
     return res.status(502).json({ message: "Could not reach Amala Live donor API" });
   }
