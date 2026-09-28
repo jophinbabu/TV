@@ -34,7 +34,8 @@ main{flex:1;display:flex;gap:1.5vw;padding:2.5vh 3vw 1.5vh;min-height:0}
 .thanks span{display:block}
 .donor-list{width:38%;min-width:340px;max-width:640px;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,255,255,.8);box-shadow:0 14px 44px rgba(32,63,88,.12)}
 .list-heading{padding:2.2vh 1.6vw;background:rgba(179,18,42,.95);color:#fff;font-size:clamp(18px,2vw,30px);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
-.list-items{padding:1vh .8vw;overflow-y:auto;flex:1}
+.list-items{padding:1vh .8vw;overflow-y:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none}
+.list-items::-webkit-scrollbar{display:none;width:0;height:0}
 .donor-row{display:flex;align-items:center;gap:1vw;padding:1.8vh 1.1vw;margin:.7vh 0;border-radius:14px;background:rgba(255,255,255,.86);border:2px solid #e6e9f0}
 .donor-row.cur{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 2px rgba(20,33,61,.04)}
 .donor-row .dot{width:12px;height:12px;min-width:12px;border-radius:50%;background:var(--accent)}
@@ -148,7 +149,6 @@ function normalize(raw) {
     var id = (F.id && r[F.id] != null) ? String(r[F.id]) : (nm + "|" + (r[F.time] || ""));
     out.push({ id: id, n: nm, g: r[F.group] || "", t: state.code, status: state.label, color: r.color || state.color, ms: isNaN(ms) ? 0 : ms });
   }
-  out.sort(function (a, b) { return b.ms - a.ms; });
   return out;
 }
 function readSummaryCounts(raw) {
