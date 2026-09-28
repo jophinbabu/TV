@@ -32,24 +32,26 @@ main{flex:1;display:flex;gap:1.5vw;padding:2.5vh 3vw 1.5vh;min-height:0}
 .group b{background:var(--soft,#fdecef);color:var(--accent,#b3122a);border-radius:12px;padding:.4vh 1.1vw;font-size:1.25em;margin-left:.8vw}
 .thanks{margin-top:3vh;font-size:2.2vw;font-size:clamp(18px,2.3vw,36px);color:#6b7488;font-weight:500;line-height:1.5}
 .thanks span{display:block}
-.donor-list{width:30%;min-width:280px;max-width:520px;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,255,255,.8);box-shadow:0 14px 44px rgba(32,63,88,.12)}
-.list-heading{padding:2vh 1.5vw;background:rgba(179,18,42,.95);color:#fff;font-size:clamp(16px,1.7vw,26px);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.donor-list{width:38%;min-width:340px;max-width:640px;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,255,255,.8);box-shadow:0 14px 44px rgba(32,63,88,.12)}
+.list-heading{padding:2.2vh 1.6vw;background:rgba(179,18,42,.95);color:#fff;font-size:clamp(18px,2vw,30px);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 .list-items{padding:1vh .8vw;overflow-y:auto;flex:1}
-.donor-row{display:flex;align-items:center;gap:.8vw;padding:1.4vh 1vw;margin:.5vh 0;border-radius:12px;background:rgba(255,255,255,.86);border:2px solid #e6e9f0}
+.donor-row{display:flex;align-items:center;gap:1vw;padding:1.8vh 1.1vw;margin:.7vh 0;border-radius:14px;background:rgba(255,255,255,.86);border:2px solid #e6e9f0}
 .donor-row.cur{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 2px rgba(20,33,61,.04)}
 .donor-row .dot{width:12px;height:12px;min-width:12px;border-radius:50%;background:var(--accent)}
 .donor-info{min-width:0;flex:1}
-.donor-row .n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(16px,1.55vw,24px);font-weight:700}
-.donor-row .meta{display:flex;justify-content:space-between;gap:.5vw;margin-top:.35vh;font-size:clamp(11px,1vw,16px);font-weight:700;color:var(--accent)}
+.donor-row .n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(18px,1.8vw,28px);font-weight:700}
+.donor-row .meta{display:flex;justify-content:space-between;gap:.5vw;margin-top:.5vh;font-size:clamp(13px,1.2vw,19px);font-weight:700;color:var(--accent)}
 .donor-row .g{color:#6b7488}
 .r{--accent:#757575;--soft:#f1f1f1}.t{--accent:#ef6c00;--soft:#fff3e0}.f{--accent:#1976d2;--soft:#e3f2fd}.b{--accent:#388e3c;--soft:#e8f5e9}.d{--accent:#0f8a4b;--soft:#e6f6ed}.n{--accent:#9e9e9e;--soft:#f5f5f5}.x{--accent:#607d8b;--soft:#eceff1}
 .empty{text-align:center;color:#6b7488;font-size:3.6vw;font-size:clamp(24px,3.6vw,56px);font-weight:600;line-height:1.5}
 .empty span{display:block;font-size:.55em;margin-top:1vh}
-footer{display:flex;align-items:center;padding:2vh 3vw;border-top:1px solid #e6e9f0;font-size:1.7vw;font-size:clamp(14px,1.7vw,26px);color:#6b7488}
-footer b{color:#14213d;font-size:1.25em;margin-left:.6vw}
-footer .k{margin-right:3vw}
-.sp{flex:1}
-#status{font-size:.8em}#status.bad{color:#b3122a;font-weight:700}
+footer{display:flex;flex-direction:column;gap:.7vh;align-items:stretch;padding:1vh 2vw;border-top:1px solid #e6e9f0;background:rgba(255,255,255,.78);color:#6b7488}
+.stats{display:flex;gap:.7vw;width:100%}
+.stat{display:flex;flex:1;min-width:0;align-items:center;justify-content:center;gap:.7vw;padding:.9vh .5vw;border:1px solid rgba(207,220,230,.85);border-radius:10px;background:rgba(255,255,255,.9)}
+.stat span{font-size:clamp(11px,1.05vw,17px);font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.stat b{font-size:clamp(21px,2.1vw,34px);line-height:1;color:#14213d}
+.stat.registered b,.stat.deferred b{color:#757575}.stat.tested b{color:#ef6c00}.stat.fit b{color:#1976d2}.stat.donating b{color:#388e3c}.stat.completed b{color:#0f8a4b}
+#status{align-self:flex-end;font-size:clamp(11px,.9vw,15px)}#status.bad{color:#b3122a;font-weight:700}
 </style></head>
 <body>
 <header>
@@ -62,9 +64,14 @@ footer .k{margin-right:3vw}
   <aside class="donor-list"><div class="list-heading">Today's Donors</div><div class="list-items" id="donor-list-items"></div></aside>
 </main>
 <footer>
-  <span class="k">Donating now<b id="cb">0</b></span>
-  <span class="k">Completed today<b id="cd">0</b></span>
-  <span class="sp"></span>
+  <div class="stats">
+    <div class="stat registered"><span>Registered</span><b id="countRegistered">0</b></div>
+    <div class="stat tested"><span>Tested</span><b id="countTested">0</b></div>
+    <div class="stat fit"><span>Fit</span><b id="countFit">0</b></div>
+    <div class="stat donating"><span>Donating</span><b id="countBleeding">0</b></div>
+    <div class="stat completed"><span>Completed</span><b id="countDonated">0</b></div>
+    <div class="stat deferred"><span>Deferred</span><b id="countDeferred">0</b></div>
+  </div>
   <span id="status">Starting…</span>
 </footer>
 
@@ -74,7 +81,7 @@ var CONFIG = {
   hospitalName: "Amala Institute of Medical Sciences",
   apiUrl: "/api/donors",
   headers: {},
-  refreshSeconds: 60,         // refresh once per minute
+  refreshSeconds: 30,         // refresh every 30 seconds
   requestTimeoutSeconds: 8,   // give up on a slow API call after this long
   slideSeconds: 6,            // time each donor stays on screen
   listPath: "data.datalist",
@@ -170,10 +177,11 @@ function applyData(list, counts) {
   var i, found = false;
   for (i = 0; i < donors.length; i++) if (donors[i].id === curId) { found = true; break; }
   if (!found) curId = donors.length ? donors[0].id : null;   // keep place by ID, not by position
-  var d = new Date(); setStatus((CONFIG.apiUrl ? "Live" : "Demo data") + " • updated " + pad(d.getHours()) + ":" + pad(d.getMinutes()));
+  var d = new Date(); setStatus((CONFIG.apiUrl ? "Live" : "Demo data") + " • updated " + time12(d));
   render();
 }
 function pad(n) { return (n < 10 ? "0" : "") + n; }
+function time12(d) { var h = d.getHours(); return ((h % 12) || 12) + ":" + pad(d.getMinutes()) + " " + (h >= 12 ? "PM" : "AM"); }
 function dateArg(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
 function load() {
   if (inflight) return; inflight = true;
@@ -204,11 +212,23 @@ var DROP = '<svg viewBox="0 0 24 24" fill="var(--accent,#b3122a)"><path d="M12 2
 var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent,#0f8a4b)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
 function isStale() { return CONFIG.apiUrl && (new Date().getTime() - lastOk) > CONFIG.staleSeconds * 1000; }
 function render() {
-  var f = $("feature"), i, cb = 0, cd = 0, stale = isStale();
+  var f = $("feature"), i, counts = { registered: 0, tested: 0, fit: 0, bleeding: 0, donated: 0, deferred: 0 }, stale = isStale();
   if (stale) { donors = []; summaryCounts = null; }
-  for (i = 0; i < donors.length; i++) { if (donors[i].t === "b") cb++; if (donors[i].t === "d") cd++; }
-  if (summaryCounts) { if (summaryCounts.bleeding != null) cb = summaryCounts.bleeding; if (summaryCounts.donated != null) cd = summaryCounts.donated; }
-  $("cb").textContent = cb; $("cd").textContent = cd;
+  for (i = 0; i < donors.length; i++) {
+    if (donors[i].t === "r") counts.registered++;
+    else if (donors[i].t === "t") counts.tested++;
+    else if (donors[i].t === "f") counts.fit++;
+    else if (donors[i].t === "b") counts.bleeding++;
+    else if (donors[i].t === "d") counts.donated++;
+    else if (donors[i].t === "n") counts.deferred++;
+  }
+  if (summaryCounts) for (var countKey in counts) if (summaryCounts[countKey] != null) counts[countKey] = summaryCounts[countKey];
+  $("countRegistered").textContent = counts.registered;
+  $("countTested").textContent = counts.tested;
+  $("countFit").textContent = counts.fit;
+  $("countBleeding").textContent = counts.bleeding;
+  $("countDonated").textContent = counts.donated;
+  $("countDeferred").textContent = counts.deferred;
   if (!donors.length) {
     if (shownKey !== "empty") {
       shownKey = "empty"; f.className = "feature";
@@ -230,7 +250,7 @@ function render() {
   updateDonorList(idx);
 }
 function updateDonorList(idx) {
-  var box = $("donor-list-items"), i, html = "";
+  var box = $("donor-list-items"), i, html = "", scrollTop = box.scrollTop;
   for (i = 0; i < donors.length; i++) {
     var d = donors[i], active = i === idx, style = ' style="--accent:' + esc(d.color) + '"';
     html += '<div class="donor-row ' + d.t + (active ? ' cur' : '') + '"' + style + '><span class="dot"></span><div class="donor-info">'
@@ -238,6 +258,13 @@ function updateDonorList(idx) {
       + (d.g ? '<span class="g">' + esc(d.g) + '</span>' : '') + '</span></div></div>';
   }
   box.innerHTML = html || '<div class="empty">No donors to display</div>';
+  box.scrollTop = scrollTop;
+}
+function autoScrollDonors() {
+  var box = $("donor-list-items"), max = box.scrollHeight - box.clientHeight;
+  if (max <= 0) { box.scrollTop = 0; return; }
+  if (box.scrollTop >= max - 1) { box.scrollTop = 0; return; }
+  box.scrollTop += 1;
 }
 function nextSlide() {
   if (!donors.length) { render(); return; }
@@ -246,8 +273,8 @@ function nextSlide() {
 }
 function clock() {
   var n = new Date(), D = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-      M = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], h = n.getHours(), ap = h >= 12 ? "PM" : "AM";
-  $("clock").textContent = ((h % 12) || 12) + ":" + pad(n.getMinutes()) + " " + ap;
+      M = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  $("clock").textContent = time12(n);
   $("date").textContent = D[n.getDay()] + ", " + n.getDate() + " " + M[n.getMonth()] + " " + n.getFullYear();
   if (isStale()) { setStatus("No connection – waiting for data", true); if (donors.length) render(); }
 }
@@ -260,6 +287,7 @@ document.addEventListener("click", goFull);
 clock(); setInterval(clock, 1000);
 load(); setInterval(load, CONFIG.refreshSeconds * 1000);
 setInterval(nextSlide, CONFIG.slideSeconds * 1000);
+setInterval(autoScrollDonors, 50);
 setTimeout(function () { location.reload(); }, CONFIG.reloadHours * 3600000);      // scheduled refresh
 var errReload = false;
 window.onerror = function () { if (!errReload) { errReload = true; setTimeout(function () { location.reload(); }, 30000); } };  // recover from unexpected errors
