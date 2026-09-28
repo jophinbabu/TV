@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Blood Bank Donor Board</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Written to also work on older Android TV browsers (fallback values come before modern ones) */
+:root{--red:#b3122a;--redsoft:#fdecef;--green:#0f8a4b;--greensoft:#e6f6ed;--ink:#14213d;--mut:#6b7488;--line:#e6e9f0;--panel:#f6f8fb}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{position:relative;background:linear-gradient(135deg,#eef5f8 0%,#f5f7fb 52%,#e9f1f5 100%);color:#14213d;font-family:"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans Malayalam","Nirmala UI",Kartika,sans-serif;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden}
+body:before{content:"";position:absolute;inset:0;background:url("src/Asset/images/download.png") center center/cover no-repeat;opacity:1;pointer-events:none}
+body>header,body>main,body>.ticker,body>footer{position:relative}
+header{display:flex;align-items:center;justify-content:space-between;padding:2vh 3vw;border-bottom:1px solid rgba(207,220,230,.8);background:rgba(255,255,255,.76)}
+.brand{display:flex;align-items:center}
+.logo{width:11vw;height:7vh;min-width:100px;min-height:48px;display:flex;align-items:center;justify-content:center;margin-right:1.2vw}
+.logo img{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.brand h1{margin:0;font-size:2.4vw;font-size:clamp(20px,2.6vw,40px);font-weight:700}
+.brand small{display:block;font-size:1.3vw;font-size:clamp(12px,1.3vw,20px);color:#6b7488;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+.time{text-align:right;font-size:2.6vw;font-size:clamp(20px,2.6vw,40px);font-weight:700}
+.time small{display:block;font-size:1.3vw;font-size:clamp(12px,1.3vw,20px);color:#6b7488;font-weight:500}
+main{flex:1;display:flex;gap:1.5vw;padding:2.5vh 3vw 1.5vh;min-height:0}
+.feature{position:relative;flex:1;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(248,251,253,.72));box-shadow:0 14px 44px rgba(32,63,88,.12);display:flex;align-items:center;justify-content:center;text-align:center;padding:3vh 3vw;overflow:hidden;min-width:0}
+.feature:before{content:"";position:absolute;left:0;top:0;bottom:0;width:1.2vw;background:var(--accent,#b3122a)}
+.slide{width:100%;animation:in .7s ease}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.icon{width:11vh;height:11vh;min-width:70px;min-height:70px;margin:0 auto 2vh;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--soft,#fdecef)}
+.icon svg{width:55%;height:55%}
+.bleeding .icon{animation:beat 1.4s infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.pill{display:inline-block;padding:.9vh 2.2vw;border-radius:999px;font-weight:700;letter-spacing:.14em;font-size:1.7vw;font-size:clamp(14px,1.7vw,26px);color:var(--accent);background:var(--soft)}
+.name{font-size:7vw;font-size:clamp(38px,7.4vw,120px);font-weight:800;line-height:1.1;margin:2.5vh 0 1.5vh;word-wrap:break-word;color:#14213d}
+.group{font-size:2.2vw;font-size:clamp(18px,2.2vw,34px);color:#6b7488;font-weight:600}
+.group b{background:var(--soft,#fdecef);color:var(--accent,#b3122a);border-radius:12px;padding:.4vh 1.1vw;font-size:1.25em;margin-left:.8vw}
+.thanks{margin-top:3vh;font-size:2.2vw;font-size:clamp(18px,2.3vw,36px);color:#6b7488;font-weight:500;line-height:1.5}
+.thanks span{display:block}
+.donor-list{width:30%;min-width:280px;max-width:520px;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,255,255,.8);box-shadow:0 14px 44px rgba(32,63,88,.12)}
+.list-heading{padding:2vh 1.5vw;background:rgba(179,18,42,.95);color:#fff;font-size:clamp(16px,1.7vw,26px);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.list-items{padding:1vh .8vw;overflow-y:auto;flex:1}
+.donor-row{display:flex;align-items:center;gap:.8vw;padding:1.4vh 1vw;margin:.5vh 0;border-radius:12px;background:rgba(255,255,255,.86);border:2px solid #e6e9f0}
+.donor-row.cur{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 2px rgba(20,33,61,.04)}
+.donor-row .dot{width:12px;height:12px;min-width:12px;border-radius:50%;background:var(--accent)}
+.donor-info{min-width:0;flex:1}
+.donor-row .n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(16px,1.55vw,24px);font-weight:700}
+.donor-row .meta{display:flex;justify-content:space-between;gap:.5vw;margin-top:.35vh;font-size:clamp(11px,1vw,16px);font-weight:700;color:var(--accent)}
+.donor-row .g{color:#6b7488}
+.r{--accent:#757575;--soft:#f1f1f1}.t{--accent:#ef6c00;--soft:#fff3e0}.f{--accent:#1976d2;--soft:#e3f2fd}.b{--accent:#388e3c;--soft:#e8f5e9}.d{--accent:#0f8a4b;--soft:#e6f6ed}.n{--accent:#9e9e9e;--soft:#f5f5f5}.x{--accent:#607d8b;--soft:#eceff1}
+.empty{text-align:center;color:#6b7488;font-size:3.6vw;font-size:clamp(24px,3.6vw,56px);font-weight:600;line-height:1.5}
+.empty span{display:block;font-size:.55em;margin-top:1vh}
+footer{display:flex;align-items:center;padding:2vh 3vw;border-top:1px solid #e6e9f0;font-size:1.7vw;font-size:clamp(14px,1.7vw,26px);color:#6b7488}
+footer b{color:#14213d;font-size:1.25em;margin-left:.6vw}
+footer .k{margin-right:3vw}
+.sp{flex:1}
+#status{font-size:.8em}#status.bad{color:#b3122a;font-weight:700}
+</style></head>
+<body>
+<header>
+  <div class="brand"><div class="logo"><img src="/api/logo" alt="Amala Hospital logo"></div>
+    <h1><span id="hosp"></span><small>Blood Bank • Donor Recognition Board</small></h1></div>
+  <div class="time"><span id="clock"></span><small id="date"></small></div>
+</header>
+<main>
+  <section class="feature" id="feature"></section>
+  <aside class="donor-list"><div class="list-heading">Today's Donors</div><div class="list-items" id="donor-list-items"></div></aside>
+</main>
+<footer>
+  <span class="k">Donating now<b id="cb">0</b></span>
+  <span class="k">Donated today<b id="cd">0</b></span>
+  <span class="sp"></span>
+  <span id="status">Starting…</span>
+</footer>
+
+<script>
+/* ================= EDIT THIS SECTION FOR YOUR API ================= */
+var CONFIG = {
+  hospitalName: "Amala Institute of Medical Sciences",
+  apiUrl: "/api/donors",
+  headers: {},
+  refreshSeconds: 60,         // refresh once per minute
+  requestTimeoutSeconds: 8,   // give up on a slow API call after this long
+  slideSeconds: 6,            // time each donor stays on screen
+  listPath: "data.datalist",
+  fields: { id: "datalistid", name: "donorName", status: "status", group: "donationtype", time: "registrationtime" },
+  nameDisplay: "full",        // "full", "firstName" or "initials"
+
+  showOnlyToday: true,
+  donatedShowMinutes: 0,
+  bleedingMaxHours: 0,
+  staleSeconds: 120,          // no successful API update for this long -> show neutral thank-you screen
+  reloadHours: 6,             // reload the page automatically every N hours (keeps the TV healthy)
+};
+/* ================================================================== */
+
+var donors = [], curId = null, lastOk = 0, shownKey = "", inflight = false;
+var STATUS = {
+  registered: { code: "r", label: "REGISTERED", color: "#9e9e9e" }, r: { code: "r", label: "REGISTERED", color: "#9e9e9e" },
+  tested: { code: "t", label: "TESTED", color: "#ff9800" }, t: { code: "t", label: "TESTED", color: "#ff9800" },
+  fit: { code: "f", label: "FIT", color: "#2196f3" }, f: { code: "f", label: "FIT", color: "#2196f3" },
+  bled: { code: "b", label: "BLEEDING", color: "#4caf50" }, bleeding: { code: "b", label: "BLEEDING", color: "#4caf50" }, b: { code: "b", label: "BLEEDING", color: "#4caf50" },
+  donated: { code: "d", label: "DONATED", color: "#0f8a4b" }, d: { code: "d", label: "DONATED", color: "#0f8a4b" },
+  deferred: { code: "n", label: "DEFERRED", color: "#9e9e9e" }, n: { code: "n", label: "DEFERRED", color: "#9e9e9e" }
+};
+var ML = {
+  b: "ജീവൻ രക്ഷിക്കുന്ന ദാനത്തിന് നന്ദി",
+  d: "രക്തദാനത്തിന് നന്ദി – നിങ്ങൾ ഒരു ജീവൻ രക്ഷിച്ചു",
+  neutral: "എല്ലാ രക്തദാതാക്കൾക്കും നന്ദി"
+};
+var EN = { b: "Thank you for giving the gift of life", d: "Thank you – you are a life saver" };
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { var d = document.createElement("div"); d.textContent = (s == null ? "" : s); return d.innerHTML; }
+function getPath(o, p) { if (!p) return o; var a = p.split("."), i; for (i = 0; i < a.length; i++) { if (o == null) return o; o = o[a[i]]; } return o; }
+function has(arr, v) { return arr.indexOf(v) > -1; }
+function fmtName(n) {
+  n = String(n || "").replace(/^\s+|\s+$/g, ""); var p = n.split(/\s+/);
+  if (CONFIG.nameDisplay === "firstName") return p[0];
+  if (CONFIG.nameDisplay === "initials") { var o = [], i; for (i = 0; i < p.length; i++) if (p[i]) o.push(p[i].charAt(0).toUpperCase() + "."); return o.join(" "); }
+  return n;
+}
+function parseTime(v) {
+  if (v == null || v === "") return NaN;
+  if (typeof v === "number") return v < 1e12 ? v * 1000 : v;
+  var t = new Date(String(v).replace(" ", "T")).getTime();
+  return t;
+}
+function keep(t, ms) {
+  if (isNaN(ms)) return true;                       // no usable time -> keep
+  var now = new Date().getTime(), age = now - ms;
+  if (CONFIG.showOnlyToday && new Date(ms).toDateString() !== new Date().toDateString()) return false;
+  if (t === "d" && CONFIG.donatedShowMinutes > 0 && age > CONFIG.donatedShowMinutes * 60000) return false;
+  if (t === "b" && CONFIG.bleedingMaxHours > 0 && age > CONFIG.bleedingMaxHours * 3600000) return false;
+  return true;
+}
+function normalize(raw) {
+  var arr = getPath(raw, CONFIG.listPath); if (!(arr instanceof Array)) return null;
+  var out = [], i, F = CONFIG.fields;
+  for (i = 0; i < arr.length; i++) {
+    var r = arr[i] || {}, s = String(r[F.status] || "").toLowerCase().replace(/^\s+|\s+$/g, ""), state = STATUS[s];
+    if (!state) state = { code: "x", label: String(r[F.status] || "UNKNOWN").toUpperCase(), color: r.color || "#607d8b" };
+    var ms = F.time ? parseTime(r[F.time]) : NaN;
+    if (!keep(state.code, ms)) continue;
+    var nm = fmtName(r[F.name]); if (!nm) continue;
+    var id = (F.id && r[F.id] != null) ? String(r[F.id]) : (nm + "|" + (r[F.time] || ""));
+    out.push({ id: id, n: nm, g: r[F.group] || "", t: state.code, status: state.label, color: r.color || state.color, ms: isNaN(ms) ? 0 : ms });
+  }
+  out.sort(function (a, b) { return b.ms - a.ms; });
+  return out;
+}
+
+/* ---- data loading: XHR with timeout, no overlapping calls ---- */
+function setStatus(txt, bad) { var e = $("status"); e.textContent = txt; e.className = bad ? "bad" : ""; }
+function applyData(list) {
+  donors = list; lastOk = new Date().getTime();
+  var i, found = false;
+  for (i = 0; i < donors.length; i++) if (donors[i].id === curId) { found = true; break; }
+  if (!found) curId = donors.length ? donors[0].id : null;   // keep place by ID, not by position
+  var d = new Date(); setStatus((CONFIG.apiUrl ? "Live" : "Demo data") + " • updated " + pad(d.getHours()) + ":" + pad(d.getMinutes()));
+  render();
+}
+function pad(n) { return (n < 10 ? "0" : "") + n; }
+function dateArg(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+function load() {
+  if (inflight) return; inflight = true;
+  var x = new XMLHttpRequest(), done = false;
+  function finish() { inflight = false; }
+  var today = dateArg(new Date());
+  var url = CONFIG.apiUrl + "?date=" + encodeURIComponent(today) + "&_=" + new Date().getTime();
+  x.open("GET", url, true);
+  var k; for (k in CONFIG.headers) if (CONFIG.headers.hasOwnProperty(k)) x.setRequestHeader(k, CONFIG.headers[k]);
+  x.timeout = CONFIG.requestTimeoutSeconds * 1000;
+  x.onload = function () {
+    finish();
+    if (x.status < 200 || x.status > 299) { setStatus("Server error " + x.status, true); return; }
+    try {
+      var response = JSON.parse(x.responseText);
+      if (response.success === false || (response.httpstatus && response.httpstatus !== 200)) throw new Error(response.message || "API request failed");
+      var l = normalize(response);
+      if (!l) throw new Error("Unexpected donor data from server");
+      applyData(l);
+    } catch (e) { setStatus(e.message || "Unexpected data from server", true); }
+  };
+  x.onerror = x.ontimeout = function () { finish(); setStatus("Connection lost", true); };
+  try { x.send(); } catch (e) { finish(); setStatus("Connection lost", true); }
+}
+
+/* ---- rendering ---- */
+var DROP = '<svg viewBox="0 0 24 24" fill="var(--accent,#b3122a)"><path d="M12 2C12 2 5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13z"/></svg>';
+var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent,#0f8a4b)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+function isStale() { return CONFIG.apiUrl && (new Date().getTime() - lastOk) > CONFIG.staleSeconds * 1000; }
+function render() {
+  var f = $("feature"), i, cb = 0, cd = 0, stale = isStale();
+  if (stale) donors = [];
+  for (i = 0; i < donors.length; i++) { if (donors[i].t === "b") cb++; if (donors[i].t === "d") cd++; }
+  $("cb").textContent = cb; $("cd").textContent = cd;
+  if (!donors.length) {
+    if (shownKey !== "empty") {
+      shownKey = "empty"; f.className = "feature";
+      f.innerHTML = '<div class="empty">Thank you to all our blood donors<span>Every donation saves lives</span></div>';
+    }
+    updateDonorList(null);
+    return;
+  }
+  var idx = 0; for (i = 0; i < donors.length; i++) if (donors[i].id === curId) idx = i;
+  var d = donors[idx], b = d.t === "b", key = d.id + "|" + d.t;
+  if (key !== shownKey) {                              // only redraw the big card when the donor really changes
+    shownKey = key; f.className = "feature " + d.t + (b ? " bleeding" : ""); f.style.setProperty("--accent", d.color);
+    f.innerHTML = '<div class="slide"><div class="icon">' + (b ? DROP : TICK) + '</div>'
+      + '<span class="pill">' + esc(d.status) + '</span>'
+      + '<div class="name">' + esc(d.n) + '</div>'
+      + (d.g ? '<div class="group">Donation type <b>' + esc(d.g) + '</b></div>' : '')
+      + '<div class="thanks"><span>' + (EN[d.t] || "Thank you for supporting our blood bank") + '</span></div></div>';
+  }
+  updateDonorList(idx);
+}
+function updateDonorList(idx) {
+  var box = $("donor-list-items"), i, html = "";
+  for (i = 0; i < donors.length; i++) {
+    var d = donors[i], active = i === idx, style = ' style="--accent:' + esc(d.color) + '"';
+    html += '<div class="donor-row ' + d.t + (active ? ' cur' : '') + '"' + style + '><span class="dot"></span><div class="donor-info">'
+      + '<span class="n">' + esc(d.n) + '</span><span class="meta"><span>' + esc(d.status) + '</span>'
+      + (d.g ? '<span class="g">' + esc(d.g) + '</span>' : '') + '</span></div></div>';
+  }
+  box.innerHTML = html || '<div class="empty">No donors to display</div>';
+}
+function nextSlide() {
+  if (!donors.length) { render(); return; }
+  var i, idx = 0; for (i = 0; i < donors.length; i++) if (donors[i].id === curId) idx = i;
+  curId = donors[(idx + 1) % donors.length].id; render();
+}
+function clock() {
+  var n = new Date(), D = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      M = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], h = n.getHours(), ap = h >= 12 ? "PM" : "AM";
+  $("clock").textContent = ((h % 12) || 12) + ":" + pad(n.getMinutes()) + " " + ap;
+  $("date").textContent = D[n.getDay()] + ", " + n.getDate() + " " + M[n.getMonth()] + " " + n.getFullYear();
+  if (isStale()) { setStatus("No connection – waiting for data", true); if (donors.length) render(); }
+}
+
+/* ---- start-up and self-recovery ---- */
+$("hosp").textContent = CONFIG.hospitalName;
+function goFull() { var e = document.documentElement, r = e.requestFullscreen || e.webkitRequestFullscreen; if (r && !(document.fullscreenElement || document.webkitFullscreenElement)) { try { r.call(e); } catch (x) {} } }
+document.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.keyCode === 13 || e.keyCode === 32) goFull(); });
+document.addEventListener("click", goFull);
+clock(); setInterval(clock, 1000);
+load(); setInterval(load, CONFIG.refreshSeconds * 1000);
+setInterval(nextSlide, CONFIG.slideSeconds * 1000);
+setTimeout(function () { location.reload(); }, CONFIG.reloadHours * 3600000);      // scheduled refresh
+var errReload = false;
+window.onerror = function () { if (!errReload) { errReload = true; setTimeout(function () { location.reload(); }, 30000); } };  // recover from unexpected errors
+</script></body></html>

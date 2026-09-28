@@ -1,0 +1,5 @@
+{
+  "installCommand": "true",
+  "buildCommand": "node scripts/build-tv.js",
+  "outputDirectory": "dist"
+}
