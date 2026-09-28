@@ -36,12 +36,12 @@ main{flex:1;display:flex;gap:1.5vw;padding:2.5vh 3vw 1.5vh;min-height:0}
 .list-heading{padding:2.2vh 1.6vw;background:rgba(179,18,42,.95);color:#fff;font-size:clamp(18px,2vw,30px);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 .list-items{padding:1vh .8vw;overflow-y:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none}
 .list-items::-webkit-scrollbar{display:none;width:0;height:0}
-.donor-row{display:flex;align-items:center;gap:1vw;padding:1.8vh 1.1vw;margin:.7vh 0;border-radius:14px;background:rgba(255,255,255,.86);border:2px solid #e6e9f0}
+.donor-row{display:flex;align-items:center;gap:.8vw;padding:1vh .9vw;margin:.4vh 0;border-radius:12px;background:rgba(255,255,255,.86);border:2px solid #e6e9f0}
 .donor-row.cur{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 2px rgba(20,33,61,.04)}
 .donor-row .dot{width:12px;height:12px;min-width:12px;border-radius:50%;background:var(--accent)}
 .donor-info{min-width:0;flex:1}
-.donor-row .n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(18px,1.8vw,28px);font-weight:700}
-.donor-row .meta{display:flex;justify-content:space-between;gap:.5vw;margin-top:.5vh;font-size:clamp(13px,1.2vw,19px);font-weight:700;color:var(--accent)}
+.donor-row .n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(16px,1.45vw,23px);font-weight:700}
+.donor-row .meta{display:flex;justify-content:space-between;gap:.5vw;margin-top:.25vh;font-size:clamp(11px,1vw,16px);font-weight:700;color:var(--accent)}
 .donor-row .g{color:#6b7488}
 .r{--accent:#757575;--soft:#f1f1f1}.t{--accent:#ef6c00;--soft:#fff3e0}.f{--accent:#1976d2;--soft:#e3f2fd}.b{--accent:#388e3c;--soft:#e8f5e9}.d{--accent:#0f8a4b;--soft:#e6f6ed}.n{--accent:#9e9e9e;--soft:#f5f5f5}.x{--accent:#607d8b;--soft:#eceff1}
 .empty{text-align:center;color:#6b7488;font-size:3.6vw;font-size:clamp(24px,3.6vw,56px);font-weight:600;line-height:1.5}
@@ -172,8 +172,16 @@ function readSummaryCounts(raw) {
 
 /* ---- data loading: XHR with timeout, no overlapping calls ---- */
 function setStatus(txt, bad) { var e = $("status"); e.textContent = txt; e.className = bad ? "bad" : ""; }
+function mergeDonorList(previous, incoming) {
+  var merged = incoming.slice(), seen = {}, i;
+  for (i = 0; i < incoming.length; i++) seen[incoming[i].id] = true;
+  for (i = 0; i < previous.length; i++) {
+    if (!seen[previous[i].id]) merged.push(previous[i]);
+  }
+  return merged;
+}
 function applyData(list, counts) {
-  donors = list; summaryCounts = counts; lastOk = new Date().getTime();
+  donors = mergeDonorList(donors, list); summaryCounts = counts; lastOk = new Date().getTime();
   var i, found = false;
   for (i = 0; i < donors.length; i++) if (donors[i].id === curId) { found = true; break; }
   if (!found) curId = donors.length ? donors[0].id : null;   // keep place by ID, not by position
