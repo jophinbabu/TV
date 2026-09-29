@@ -35,6 +35,7 @@ module.exports = async function handler(req, res) {
       status: donor.status,
       color: donor.color,
       registrationtime: donor.registrationtime,
+      donationstart: donor.donationstart,
       donationtype: donor.donationtype,
     }));
 

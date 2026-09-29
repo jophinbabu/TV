@@ -89,7 +89,7 @@ var CONFIG = {
   fields: { id: "datalistid", name: "donorName", status: "status", group: "donationtype", time: "registrationtime" },
   nameDisplay: "full",        // "full", "firstName" or "initials"
 
-  showOnlyToday: true,
+  showOnlyToday: false,       // API already filters by requested date (?date=YYYY-MM-DD)
   donatedShowMinutes: 0,
   bleedingMaxHours: 0,
   staleSeconds: 120,          // no successful API update for this long -> show neutral thank-you screen
