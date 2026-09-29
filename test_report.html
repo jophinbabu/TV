@@ -129,10 +129,18 @@ function parseTime(v) {
   var t = new Date(String(v).replace(" ", "T")).getTime();
   return t;
 }
-function keep(t, ms) {
+function keep(t, ms, r) {
   if (isNaN(ms)) return true;                       // no usable time -> keep
-  var now = new Date().getTime(), age = now - ms;
-  if (CONFIG.showOnlyToday && new Date(ms).toDateString() !== new Date().toDateString()) return false;
+  var now = new Date().getTime(), age = now - ms, todayStr = new Date().toDateString();
+  if (CONFIG.showOnlyToday) {
+    var isToday = new Date(ms).toDateString() === todayStr;
+    // If primary timestamp isn't today, check other known date fields (e.g. donationstart or registrationtime)
+    if (!isToday && r) {
+      var altTime = r.donationstart || r.donationtime || r.registrationtime;
+      if (altTime && new Date(parseTime(altTime)).toDateString() === todayStr) isToday = true;
+    }
+    if (!isToday) return false;
+  }
   if (t === "d" && CONFIG.donatedShowMinutes > 0 && age > CONFIG.donatedShowMinutes * 60000) return false;
   if (t === "b" && CONFIG.bleedingMaxHours > 0 && age > CONFIG.bleedingMaxHours * 3600000) return false;
   return true;
@@ -143,10 +151,14 @@ function normalize(raw) {
   for (i = 0; i < arr.length; i++) {
     var r = arr[i] || {}, s = String(r[F.status] || "").toLowerCase().replace(/^\s+|\s+$/g, ""), state = STATUS[s];
     if (!state) state = { code: "x", label: String(r[F.status] || "UNKNOWN").toUpperCase(), color: r.color || "#607d8b" };
-    var ms = F.time ? parseTime(r[F.time]) : NaN;
-    if (!keep(state.code, ms)) continue;
+    // Prefer donationstart/donationtime for donors who are bleeding or have bled; fallback to configured time / registrationtime
+    var rawTime = (state.code === "b" || state.code === "d")
+      ? (r.donationstart || r.donationtime || r[F.time] || r.registrationtime)
+      : (r[F.time] || r.registrationtime || r.donationstart);
+    var ms = rawTime ? parseTime(rawTime) : NaN;
+    if (!keep(state.code, ms, r)) continue;
     var nm = fmtName(r[F.name]); if (!nm) continue;
-    var id = (F.id && r[F.id] != null) ? String(r[F.id]) : (nm + "|" + (r[F.time] || ""));
+    var id = (F.id && r[F.id] != null) ? String(r[F.id]) : (nm + "|" + (rawTime || ""));
     out.push({ id: id, n: nm, g: r[F.group] || "", t: state.code, status: state.label, color: r.color || state.color, ms: isNaN(ms) ? 0 : ms });
   }
   return out;
