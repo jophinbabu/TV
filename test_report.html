@@ -53,6 +53,8 @@ footer{display:flex;flex-direction:column;gap:.7vh;align-items:stretch;padding:1
 .stat b{font-size:clamp(21px,2.1vw,34px);line-height:1;color:#14213d}
 .stat.registered b,.stat.deferred b{color:#757575}.stat.tested b{color:#ef6c00}.stat.fit b{color:#1976d2}.stat.donating b{color:#388e3c}.stat.completed b{color:#0f8a4b}
 #status{align-self:flex-end;font-size:clamp(11px,.9vw,15px)}#status.bad{color:#b3122a;font-weight:700}
+#fsHint{position:fixed;bottom:14px;right:20px;background:rgba(20,33,61,.92);color:#fff;padding:8px 18px;border-radius:24px;font-size:clamp(12px,1.2vw,18px);font-weight:700;letter-spacing:.05em;box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:9999;transition:opacity .4s ease;display:none;cursor:pointer}
+:fullscreen #fsHint,:-webkit-full-screen #fsHint,:-moz-full-screen #fsHint,:-ms-fullscreen #fsHint{display:none!important}
 </style></head>
 <body>
 <header>
@@ -75,6 +77,7 @@ footer{display:flex;flex-direction:column;gap:.7vh;align-items:stretch;padding:1
   </div>
   <span id="status">Starting…</span>
 </footer>
+<div id="fsHint" onclick="goFull()">Press OK on remote for Full Screen</div>
 
 <script>
 /* ================= EDIT THIS SECTION FOR YOUR API ================= */
@@ -301,18 +304,72 @@ function clock() {
 
 /* ---- start-up and self-recovery ---- */
 $("hosp").textContent = CONFIG.hospitalName;
+
+function isFullscreen() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+}
+
 function goFull() {
-  var e = document.documentElement, r = e.requestFullscreen || e.webkitRequestFullscreen || e.mozRequestFullScreen || e.msRequestFullscreen;
-  if (r && !(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+  if (isFullscreen()) return;
+  var e = document.documentElement;
+  var r = e.requestFullscreen || e.webkitRequestFullscreen || e.mozRequestFullScreen || e.msRequestFullscreen;
+  if (r) {
     try {
       var res = r.call(e);
       if (res && typeof res.catch === "function") { res.catch(function () {}); }
     } catch (x) {}
   }
 }
-document.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.keyCode === 13 || e.keyCode === 32) goFull(); });
-document.addEventListener("click", goFull);
-setTimeout(goFull, 5000);
+
+function isOkKey(e) {
+  var k = (e.key || "").toLowerCase();
+  var c = e.keyCode || e.which || 0;
+  // Standard Enter (13), Android TV DPAD_CENTER (23), Android TV ENTER (66), Space (32)
+  return k === "enter" || k === "select" || k === "ok" || c === 13 || c === 23 || c === 66 || c === 32;
+}
+
+function onOkPress(e) {
+  if (isOkKey(e)) {
+    if (e.preventDefault) e.preventDefault();
+    goFull();
+    var hint = $("fsHint");
+    if (hint) hint.style.display = "none";
+  }
+}
+
+document.addEventListener("keydown", onOkPress);
+document.addEventListener("keyup", onOkPress);
+document.addEventListener("click", function () {
+  goFull();
+  var hint = $("fsHint");
+  if (hint) hint.style.display = "none";
+});
+
+function onFsChange() {
+  var hint = $("fsHint");
+  if (hint && isFullscreen()) hint.style.display = "none";
+}
+document.addEventListener("fullscreenchange", onFsChange);
+document.addEventListener("webkitfullscreenchange", onFsChange);
+document.addEventListener("mozfullscreenchange", onFsChange);
+document.addEventListener("MSFullscreenChange", onFsChange);
+
+// Try automatic fullscreen at 5s; if browser requires user gesture, display prompt for TV remote
+setTimeout(function () {
+  goFull();
+  if (!isFullscreen()) {
+    var hint = $("fsHint");
+    if (hint) {
+      hint.style.display = "block";
+      setTimeout(function () {
+        if (hint && !isFullscreen()) {
+          hint.style.opacity = "0";
+          setTimeout(function () { if (hint) hint.style.display = "none"; }, 600);
+        }
+      }, 10000);
+    }
+  }
+}, 5000);
 clock(); setInterval(clock, 1000);
 load(); setInterval(load, CONFIG.refreshSeconds * 1000);
 setInterval(nextSlide, CONFIG.slideSeconds * 1000);
