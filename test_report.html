@@ -301,9 +301,18 @@ function clock() {
 
 /* ---- start-up and self-recovery ---- */
 $("hosp").textContent = CONFIG.hospitalName;
-function goFull() { var e = document.documentElement, r = e.requestFullscreen || e.webkitRequestFullscreen; if (r && !(document.fullscreenElement || document.webkitFullscreenElement)) { try { r.call(e); } catch (x) {} } }
+function goFull() {
+  var e = document.documentElement, r = e.requestFullscreen || e.webkitRequestFullscreen || e.mozRequestFullScreen || e.msRequestFullscreen;
+  if (r && !(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+    try {
+      var res = r.call(e);
+      if (res && typeof res.catch === "function") { res.catch(function () {}); }
+    } catch (x) {}
+  }
+}
 document.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.keyCode === 13 || e.keyCode === 32) goFull(); });
 document.addEventListener("click", goFull);
+setTimeout(goFull, 5000);
 clock(); setInterval(clock, 1000);
 load(); setInterval(load, CONFIG.refreshSeconds * 1000);
 setInterval(nextSlide, CONFIG.slideSeconds * 1000);
